@@ -59,7 +59,7 @@ class Window(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.metadata = {}
-        self.setWindowTitle('Youtube Downloader')
+        self.setWindowTitle('USound Downloader')
 
         input_frame = self._build_input_box()
         save_frame = self._build_save_directory()
