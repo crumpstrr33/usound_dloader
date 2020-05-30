@@ -26,9 +26,23 @@ from shutil import rmtree
 from bs4 import BeautifulSoup
 import requests
 
-from PyQt5.QtWidgets import (QApplication, QWidget, QHBoxLayout, QVBoxLayout,
-    QGridLayout, QLineEdit, QLabel, QFrame, QPushButton, QFileDialog, QComboBox,
-    QSizePolicy, QWidget, QLayout, QCheckBox)
+from PyQt5.QtWidgets import (
+    QApplication,
+    QWidget,
+    QHBoxLayout,
+    QVBoxLayout,
+    QGridLayout,
+    QLineEdit,
+    QLabel,
+    QFrame,
+    QPushButton,
+    QFileDialog,
+    QComboBox,
+    QSizePolicy,
+    QWidget,
+    QLayout,
+    QCheckBox,
+)
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtGui import QFont, QPalette, QPixmap, QPainter
 
@@ -51,15 +65,15 @@ from PyQt5.QtGui import QFont, QPalette, QPixmap, QPainter
 
 class Window(QWidget):
     WIDTH, HEIGHT = 500, 500
-    INPUT_COLOR = 'color: DarkSlateGrey;'
+    INPUT_COLOR = "color: DarkSlateGrey;"
     TITLE_FONT = 15
-    METADATA = ['Album', 'Artist', 'Title']
-    FTYPE = '.mp4'
+    METADATA = ["Album", "Artist", "Title"]
+    FTYPE = ".mp4"
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.metadata = {}
-        self.setWindowTitle('USound Downloader')
+        self.setWindowTitle("USound Downloader")
 
         input_frame = self._build_input_box()
         save_frame = self._build_save_directory()
@@ -70,49 +84,56 @@ class Window(QWidget):
         master_layout = QGridLayout()
         master_layout.SetNoConstraint
         master_layout.setContentsMargins(15, 15, 15, 15)
-        master_layout.addWidget(input_frame, 1, 0, 3, 6)
-        master_layout.addWidget(save_frame, 4, 0, 1.5, 6)
-        master_layout.addWidget(info_frame, 5.5, 0, 2.5, 6)
-        master_layout.addWidget(apply_button, 8, 0, 2, 2)
-        master_layout.addWidget(thumbnail, 8, 2, 2, 4)
+        master_layout.addWidget(input_frame, 2, 0, 6, 12)
+        master_layout.addWidget(save_frame, 8, 0, 3, 12)
+        master_layout.addWidget(info_frame, 11, 0, 5, 12)
+        master_layout.addWidget(apply_button, 16, 0, 4, 4)
+        master_layout.addWidget(thumbnail, 16, 4, 4, 8)
 
         self.setLayout(master_layout)
         self.setGeometry(300, 200, self.WIDTH, self.HEIGHT)
 
     def _build_input_box(self):
         # Make the title of this part of the GUI *pretty*
-        title = QLabel('Inputs')
-        title_font = QFont('Serif', self.TITLE_FONT)
+        title = QLabel("Inputs")
+        title_font = QFont("Serif", self.TITLE_FONT)
         title_font.setBold(True)
         title.setFont(title_font)
-        title.setStyleSheet('padding-bottom: 10px;')
+        title.setStyleSheet("padding-bottom: 10px;")
 
         # Input for when the audio starts
         self.start_time_input = [
-            QLineEdit(placeholderText='HH', maxLength=2, alignment=Qt.AlignCenter),
-            QLineEdit(placeholderText='MM', maxLength=2, alignment=Qt.AlignCenter),
-            QLineEdit(placeholderText='SS', maxLength=2, alignment=Qt.AlignCenter),
-            QLineEdit(placeholderText='mmm', maxLength=3, alignment=Qt.AlignCenter)]
+            QLineEdit(placeholderText="HH", maxLength=2, alignment=Qt.AlignCenter),
+            QLineEdit(placeholderText="MM", maxLength=2, alignment=Qt.AlignCenter),
+            QLineEdit(placeholderText="SS", maxLength=2, alignment=Qt.AlignCenter),
+            QLineEdit(placeholderText="mmm", maxLength=3, alignment=Qt.AlignCenter),
+        ]
         # Input for how long the audio goes for
         self.time_length_input = [
-            QLineEdit(placeholderText='HH', maxLength=2, alignment=Qt.AlignCenter),
-            QLineEdit(placeholderText='MM', maxLength=2, alignment=Qt.AlignCenter),
-            QLineEdit(placeholderText='SS', maxLength=2, alignment=Qt.AlignCenter),
-            QLineEdit(placeholderText='mmm', maxLength=3, alignment=Qt.AlignCenter)]
+            QLineEdit(placeholderText="HH", maxLength=2, alignment=Qt.AlignCenter),
+            QLineEdit(placeholderText="MM", maxLength=2, alignment=Qt.AlignCenter),
+            QLineEdit(placeholderText="SS", maxLength=2, alignment=Qt.AlignCenter),
+            QLineEdit(placeholderText="mmm", maxLength=3, alignment=Qt.AlignCenter),
+        ]
         # URL of YouTube video
         self.youtube_url = QLineEdit()
         self.youtube_url.setStyleSheet(self.INPUT_COLOR)
-        wwwutube = QLabel('youtube.com/watch?v=')
+        wwwutube = QLabel("youtube.com/watch?v=")
         wwwutube.setStyleSheet(self.INPUT_COLOR)
 
         # Stack the inputs vertically
         input_v_box = QVBoxLayout()
         input_v_box.addWidget(title)
-        input_v_box.addLayout(self._make_time_layout(self.start_time_input, 'Start Time'))
-        input_v_box.addLayout(self._make_time_layout(self.time_length_input, 'Total Time'))
+        input_v_box.addLayout(
+            self._make_time_layout(self.start_time_input, "Start Time")
+        )
+        input_v_box.addLayout(
+            self._make_time_layout(self.time_length_input, "Total Time")
+        )
         input_v_box.addSpacing(20)
-        input_v_box.addLayout(self._make_h_layout([QLabel('Link: '),
-            wwwutube, self.youtube_url]))
+        input_v_box.addLayout(
+            self._make_h_layout([QLabel("Link: "), wwwutube, self.youtube_url])
+        )
         input_v_box.addStretch()
 
         # Wrap layout in frame so to border it
@@ -124,7 +145,7 @@ class Window(QWidget):
             `title`: `[0]:[1]:[2].[3]`
         where [n] is the nth element of `input_list` and it returns the layout.
         """
-        labels = [QLabel(title), QLabel(':'), QLabel(':'), QLabel('.')]
+        labels = [QLabel(title), QLabel(":"), QLabel(":"), QLabel(".")]
 
         # Set the width of each Line Edit and color
         [ele.setFixedWidth(30) for ele in input_list]
@@ -141,25 +162,25 @@ class Window(QWidget):
 
     def _build_save_directory(self):
         # Title this part too
-        title = QLabel('Save Directory')
-        title_font = QFont('Serif', self.TITLE_FONT)
+        title = QLabel("Save Directory")
+        title_font = QFont("Serif", self.TITLE_FONT)
         title_font.setBold(True)
         title.setFont(title_font)
-        title.setStyleSheet('padding-bottom: 10px;')
+        title.setStyleSheet("padding-bottom: 10px;")
 
         # Add checkbox for overwriting existing directory
         self.overwrite = QCheckBox()
-        overwrite_font = QFont('Ariel', 8)
-        overwrite_label = QLabel('Overwrite Directory')
+        overwrite_font = QFont("Ariel", 8)
+        overwrite_label = QLabel("Overwrite Directory")
         overwrite_label.setFont(overwrite_font)
         overwrite_layout = QHBoxLayout()
         overwrite_layout.addWidget(overwrite_label)
         overwrite_layout.addWidget(self.overwrite)
-    
+
         # LineEdit to input path to save directory or browse for it
         self.save_dir = QLineEdit()
         self.save_dir.setStyleSheet(self.INPUT_COLOR)
-        search_dirs = QPushButton('...')
+        search_dirs = QPushButton("...")
         search_dirs.setFixedWidth(25)
         search_dirs.clicked.connect(self.open_filedialog)
 
@@ -183,17 +204,17 @@ class Window(QWidget):
 
     def _build_save_info(self):
         # Once again, make a neat title
-        title = QLabel('MP3 Information')
-        title_font = QFont('Serif', self.TITLE_FONT)
+        title = QLabel("MP3 Information")
+        title_font = QFont("Serif", self.TITLE_FONT)
         title_font.setBold(True)
         title.setFont(title_font)
-        title.setStyleSheet('padding-bottom: 10px;')
+        title.setStyleSheet("padding-bottom: 10px;")
 
         # Necessary info, name of the file itself
         self.file_name = QLineEdit()
         self.file_name.setStyleSheet(self.INPUT_COLOR)
         file_name_layout = QHBoxLayout()
-        file_name_layout.addWidget(QLabel('File Name:'))
+        file_name_layout.addWidget(QLabel("File Name:"))
         file_name_layout.addWidget(self.file_name)
 
         # Can choose from the list of self.METADATA of different types of
@@ -204,7 +225,7 @@ class Window(QWidget):
             lambda: self.add_metadata(self.metadata_choices.currentText())
         )
         meta_data_choices_layout = QHBoxLayout()
-        meta_data_choices_layout.addWidget(QLabel('Metadata:'))
+        meta_data_choices_layout.addWidget(QLabel("Metadata:"))
         meta_data_choices_layout.addWidget(self.metadata_choices)
 
         # Stack it all vertically
@@ -223,7 +244,7 @@ class Window(QWidget):
         for removing the line.
         """
         if md_name not in self.metadata.keys():
-            self.remove_md = QPushButton('X')
+            self.remove_md = QPushButton("X")
             self.remove_md.setFixedSize(17, 17)
 
             md_input = QLineEdit()
@@ -231,7 +252,8 @@ class Window(QWidget):
 
             # Make each line of metadata info and save it
             self.metadata[md_name] = self._make_h_layout(
-                [QLabel('{}: '.format(md_name)), md_input, self.remove_md])
+                [QLabel("{}: ".format(md_name)), md_input, self.remove_md]
+            )
             # Remove the line if the 'X' is pushed
             self.remove_md.clicked.connect(lambda: self.remove_md_input(md_name))
 
@@ -250,8 +272,8 @@ class Window(QWidget):
 
     def _build_apply_button(self):
         # Make a big ol' button!
-        self.apply = QPushButton('APPLY')
-        self.apply.setFixedWidth(3*self.WIDTH/12)
+        self.apply = QPushButton("APPLY")
+        self.apply.setFixedWidth(int(3 * self.WIDTH / 12))
         self.apply.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.apply.clicked.connect(self.download_audio)
 
@@ -262,46 +284,69 @@ class Window(QWidget):
         """
         Puts all the data entered into the proper format for get_audio_segment.
         """
-        vurl = 'https://www.youtube.com/watch?v=' + self.youtube_url.text()
+        vurl = "https://www.youtube.com/watch?v=" + self.youtube_url.text()
 
         # Put the times in format 'HH:MM:SS.mmm'
-        time_dlims = [':', ':', '.', '']
+        time_dlims = [":", ":", ".", ""]
         # These just buffer the milliseconds so it's three digits total
-        self.start_time_input[3].setText(self.start_time_input[3].text().ljust(3, '0'))
-        self.time_length_input[3].setText(self.time_length_input[3].text().ljust(3, '0'))
+        self.start_time_input[3].setText(self.start_time_input[3].text().ljust(3, "0"))
+        self.time_length_input[3].setText(
+            self.time_length_input[3].text().ljust(3, "0")
+        )
         # Here the two lists are zipped and joined, the zfill buffers a zero
         # on the left as that is the proper format
-        start = ''.join(chain(*zip(map(lambda x: x.text().zfill(2),
-            self.start_time_input), time_dlims)))
-        length = ''.join(chain(*zip(map(lambda x: x.text().zfill(2),
-            self.time_length_input), time_dlims)))
+        start = "".join(
+            chain(
+                *zip(
+                    map(lambda x: x.text().zfill(2), self.start_time_input), time_dlims
+                )
+            )
+        )
+        length = "".join(
+            chain(
+                *zip(
+                    map(lambda x: x.text().zfill(2), self.time_length_input), time_dlims
+                )
+            )
+        )
 
         # Get the info for the metadata as text
         metadata = {k: v.itemAt(1).widget().text() for k, v in self.metadata.items()}
 
-        print('Grabbing audio from {} at {} for a time of {}.'.format(
-            vurl, start, length))
-        print('Saving to {save}/{fname}/{fname}{ftype} with metadata:\n\n{md}'.format(
-            save=self.save_dir.text(), fname=self.file_name.text(),
-            ftype=self.FTYPE, md=metadata))
+        print(
+            "Grabbing audio from {} at {} for a time of {}.".format(vurl, start, length)
+        )
+        print(
+            "Saving to {save}/{fname}/{fname}{ftype} with metadata:\n\n{md}".format(
+                save=self.save_dir.text(),
+                fname=self.file_name.text(),
+                ftype=self.FTYPE,
+                md=metadata,
+            )
+        )
 
         # Grab video thumbnail to display it in the GUI
-        thumbnail_url = 'http://img.youtube.com/vi/{}/0.jpg'.format(self.youtube_url.text())
+        thumbnail_url = "http://img.youtube.com/vi/{}/0.jpg".format(
+            self.youtube_url.text()
+        )
         # Download it into the temp folder
-        tn_path = os.path.join(tempfile.gettempdir(), self.youtube_url.text() + '.jpg')
+        tn_path = os.path.join(tempfile.gettempdir(), self.youtube_url.text() + ".jpg")
         urllib.request.urlretrieve(thumbnail_url, tn_path)
         # Display the thumbnail
         thumbnail = QPixmap(tn_path)
-        thumbnail = thumbnail.scaled(2*self.WIDTH/3, 2*self.HEIGHT/3, Qt.KeepAspectRatio)
+        thumbnail = thumbnail.scaled(
+            2 * self.WIDTH / 3, 2 * self.HEIGHT / 3, Qt.KeepAspectRatio
+        )
         self.thumbnail_display.setPixmap(thumbnail)
 
-        self.get_audio_segment(vurl, self.save_dir.text(), start, length,
-            self.file_name.text(), metadata)
+        self.get_audio_segment(
+            vurl, self.save_dir.text(), start, length, self.file_name.text(), metadata
+        )
 
     def _build_thumbnail_display(self):
         self.thumbnail_display = QLabel()
         # thumbnail = QPixmap()
-        # thumbnail = thumbnail.scaled(2*self.WIDTH/3, 2*self.HEIGHT/3, Qt.KeepAspectRatio)      
+        # thumbnail = thumbnail.scaled(2*self.WIDTH/3, 2*self.HEIGHT/3, Qt.KeepAspectRatio)
 
         # self.thumbnail_display.setPixmap(thumbnail)
 
@@ -337,8 +382,9 @@ class Window(QWidget):
         frame.setMidLineWidth(0)
         return frame
 
-    def get_audio_segment(self, vurl, save, start, length, file_name='',
-        metadata={}, ftype='.mp4'):
+    def get_audio_segment(
+        self, vurl, save, start, length, file_name="", metadata={}, ftype=".mp4"
+    ):
         """
         Downloads the audio from part of a youtube video.
 
@@ -365,18 +411,20 @@ class Window(QWidget):
                 if self.overwrite.isChecked():
                     rmtree(abs_path)
                 else:
-                    print("Directory '{}' already exists and 'Overwrite" +
-                        " Directory' checkbox is not checked.".format(abs_path))
+                    print(
+                        "Directory '{}' already exists and 'Overwrite"
+                        + " Directory' checkbox is not checked.".format(abs_path)
+                    )
                     return
             os.makedirs(abs_path)
         except PermissionError:
-            print('\nFile is open in another program. Close that then try again.')
+            print("\nFile is open in another program. Close that then try again.")
 
         # -g = --get-url, grabs the URLs of the video/audio files
         # -e = --get-title gets the title to name the video if no name was given
-        cmd1 = 'youtube-dl -eg {vurl}'.format(vurl=vurl)
-        data = subprocess.check_output(cmd1).decode('utf-8').split('\n')
-        print('Grabbed meta data for video: {}...\n\n'.format(data[0]))
+        cmd1 = "youtube-dl -eg {vurl}".format(vurl=vurl)
+        data = subprocess.check_output(cmd1).decode("utf-8").split("\n")
+        print("Grabbed meta data for video: {}...\n\n".format(data[0]))
 
         # URL for the audio stream
         url = data[-2]
@@ -384,42 +432,57 @@ class Window(QWidget):
         save = os.path.join(abs_path, fname + ftype)
 
         # Puts the metadata in the correct format as arguments
-        md_arg = ''
+        md_arg = ""
         if metadata:
-            md_arg = '-metadata ' + ' -metadata '.join(map('='.join, metadata.items()))
+            md_arg = "-metadata " + " -metadata ".join(map("=".join, metadata.items()))
 
         # Builds the command to run, shlex.quote keeps the directory from having
         # its slashes all fussed with, i.e. keeps it literal
-        cmd2 = 'ffmpeg -ss {start} -i {url} -t {length} {metadata} {save}'.format(
-            start=start, url=url, length=length, metadata=md_arg, save=shlex.quote(save))
+        cmd2 = "ffmpeg -ss {start} -i {url} -t {length} {metadata} {save}".format(
+            start=start, url=url, length=length, metadata=md_arg, save=shlex.quote(save)
+        )
         # Split the command appropriately into a list to run via subprocess
         subprocess.run(shlex.split(cmd2))
 
         # Finds the total time in seconds of `start` and rounds down by multiplying
         # hours by 60^2, minutes by 60^1 and seconds by 60^0 and summing them.
-        time_in_seconds = sum([int(float(x))*60**(len(start.split(':')) - 1 - ind)
-                for ind, x in enumerate(start.split(':'))])
+        time_in_seconds = sum(
+            [
+                int(float(x)) * 60 ** (len(start.split(":")) - 1 - ind)
+                for ind, x in enumerate(start.split(":"))
+            ]
+        )
         # Possible important info saved in a .txt file
-        txt_info = {'Link': vurl + '&t=' + str(time_in_seconds),
-            **self._get_channel_info(vurl), 'Start': start,
-            'Length': length, 'Command1': cmd1,'Command2': cmd2}
-        with open(os.path.join(abs_path, fname + '.txt'), 'w') as f:
-            for line in map(': '.join, txt_info.items()):
-                f.write(line + '\n')
+        txt_info = {
+            "Link": vurl + "&t=" + str(time_in_seconds),
+            **self._get_channel_info(vurl),
+            "Start": start,
+            "Length": length,
+            "Command1": cmd1,
+            "Command2": cmd2,
+        }
+        with open(os.path.join(abs_path, fname + ".txt"), "w") as f:
+            for line in map(": ".join, txt_info.items()):
+                f.write(line + "\n")
 
-        print('\n\nRunning command:', cmd2)
-        print('\n\nFinished downloading and saved audio to: {}'.format(save))
+        print("\n\nRunning command:", cmd2)
+        print("\n\nFinished downloading and saved audio to: {}".format(save))
 
     @staticmethod
     def _get_channel_info(vurl):
         try:
             # Returns the name of the channel and title of the video for the URL `vurl`
-            soup = BeautifulSoup(requests.get(vurl).content, 'html.parser')
-            return {'Channel': soup.find('div', attrs={'class': 'yt-user-info'}).find('a').text,
-                'Title': soup.find('span', attrs={'class': 'watch-title'}).text.strip()}
-        except AttributeError: 
+            soup = BeautifulSoup(requests.get(vurl).content, "html.parser")
+            return {
+                "Channel": soup.find("div", attrs={"class": "yt-user-info"})
+                .find("a")
+                .text,
+                "Title": soup.find("span", attrs={"class": "watch-title"}).text.strip(),
+            }
+        except AttributeError:
             # Download restarted before writing txt file was done. I think...
             return {}
+
 
 def main():
     app = QApplication(sys.argv)
@@ -428,5 +491,5 @@ def main():
     sys.exit(app.exec_())
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     main()
