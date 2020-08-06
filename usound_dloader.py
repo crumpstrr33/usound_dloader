@@ -9,7 +9,7 @@ Things that are important:
    jupyter notebook is restarted afterwards to update the change in the env
    variables. A good, simple test is running `os.system('where ffmpeg')` to
    see if python can find it.
-3) That commented-out mess below is if instead of have `start` and `length`,
+3) That commented-out mess below is if instead of having `start` and `length`,
    there is `start` and `end` and it calculates `length` (since ffmpeg uses
    length). It's messy and overly pythonic. I leave it commented out because
    it's messy but I keep it cause it's so pythonic.
@@ -52,7 +52,7 @@ from PyQt5.QtGui import QFont, QPalette, QPixmap, QPainter
 #     Using the format HH:MM:SS.mmm, this is find the time difference between
 #     two different time via using datetime.
 #
-#     end - The time at which the audio to be downloaded ends. Is also formatted
+#     end - The time at which the media to be downloaded ends. Is also formatted
 #           by HH:MM:SS.mmm
 #     """
 #     startdt = dt.strptime(','.join(map(lambda x: '0' + x
@@ -68,6 +68,7 @@ class Window(QWidget):
     INPUT_COLOR = "color: DarkSlateGrey;"
     TITLE_FONT = 15
     METADATA = ["Album", "Artist", "Title"]
+    DL_TYPES = ["Audio", "Video", "GIF"]
     FTYPE = ".mp4"
 
     def __init__(self, parent=None):
@@ -75,6 +76,7 @@ class Window(QWidget):
         self.metadata = {}
         self.setWindowTitle("USound Downloader")
 
+        dl_option = self._build_dl_option()
         input_frame = self._build_input_box()
         save_frame = self._build_save_directory()
         info_frame = self._build_save_info()
@@ -83,32 +85,40 @@ class Window(QWidget):
 
         master_layout = QGridLayout()
         master_layout.SetNoConstraint
-        master_layout.setContentsMargins(15, 15, 15, 15)
-        master_layout.addWidget(input_frame, 2, 0, 6, 12)
-        master_layout.addWidget(save_frame, 8, 0, 3, 12)
-        master_layout.addWidget(info_frame, 11, 0, 5, 12)
-        master_layout.addWidget(apply_button, 16, 0, 4, 4)
-        master_layout.addWidget(thumbnail, 16, 4, 4, 8)
+        master_layout.setContentsMargins(17, 15, 15, 15)
+        master_layout.addWidget(dl_option, 2, 0, 2, 12)
+        master_layout.addWidget(input_frame, 4, 0, 6, 12)
+        master_layout.addWidget(save_frame, 10, 0, 3, 12)
+        master_layout.addWidget(info_frame, 13, 0, 5, 12)
+        master_layout.addWidget(apply_button, 18, 0, 4, 4)
+        master_layout.addWidget(thumbnail, 18, 4, 4, 8)
 
         self.setLayout(master_layout)
         self.setGeometry(300, 200, self.WIDTH, self.HEIGHT)
 
-    def _build_input_box(self):
-        # Make the title of this part of the GUI *pretty*
-        title = QLabel("Inputs")
-        title_font = QFont("Serif", self.TITLE_FONT)
-        title_font.setBold(True)
-        title.setFont(title_font)
-        title.setStyleSheet("padding-bottom: 10px;")
+    def _build_dl_option(self):
+        title = self._fancy_title("Download Option")
 
-        # Input for when the audio starts
+        self.dl_option = QComboBox()
+        self.dl_option.addItems(self.DL_TYPES)
+
+        dl_option_layout = QVBoxLayout()
+        dl_option_layout.addWidget(title)
+        dl_option_layout.addWidget(self.dl_option)
+
+        return self._format_frame(dl_option_layout)
+
+    def _build_input_box(self):
+        title = self._fancy_title("Inputs")
+
+        # Input for when the media starts
         self.start_time_input = [
             QLineEdit(placeholderText="HH", maxLength=2, alignment=Qt.AlignCenter),
             QLineEdit(placeholderText="MM", maxLength=2, alignment=Qt.AlignCenter),
             QLineEdit(placeholderText="SS", maxLength=2, alignment=Qt.AlignCenter),
             QLineEdit(placeholderText="mmm", maxLength=3, alignment=Qt.AlignCenter),
         ]
-        # Input for how long the audio goes for
+        # Input for how long the media goes for
         self.time_length_input = [
             QLineEdit(placeholderText="HH", maxLength=2, alignment=Qt.AlignCenter),
             QLineEdit(placeholderText="MM", maxLength=2, alignment=Qt.AlignCenter),
@@ -161,12 +171,7 @@ class Window(QWidget):
         return input_layout
 
     def _build_save_directory(self):
-        # Title this part too
-        title = QLabel("Save Directory")
-        title_font = QFont("Serif", self.TITLE_FONT)
-        title_font.setBold(True)
-        title.setFont(title_font)
-        title.setStyleSheet("padding-bottom: 10px;")
+        title = self._fancy_title("Save Directory")
 
         # Add checkbox for overwriting existing directory
         self.overwrite = QCheckBox()
@@ -187,7 +192,6 @@ class Window(QWidget):
         # Put it all together in a grid (r, c, rspan, cspan)
         save_g_layout = QGridLayout()
         save_g_layout.addWidget(title, 0, 0, 1, 4)
-        # save_g_layout.addWidget(self.overwrite, 0, 4, 1, 1)
         save_g_layout.addLayout(overwrite_layout, 0, 4, 1, 2)
         save_g_layout.addWidget(search_dirs, 1, 0, 1, 1)
         save_g_layout.addWidget(self.save_dir, 1, 1, 1, 5)
@@ -203,12 +207,7 @@ class Window(QWidget):
         self.save_dir.setText(save_dir)
 
     def _build_save_info(self):
-        # Once again, make a neat title
-        title = QLabel("MP3 Information")
-        title_font = QFont("Serif", self.TITLE_FONT)
-        title_font.setBold(True)
-        title.setFont(title_font)
-        title.setStyleSheet("padding-bottom: 10px;")
+        title = self._fancy_title("MP3 Information")
 
         # Necessary info, name of the file itself
         self.file_name = QLineEdit()
@@ -268,21 +267,20 @@ class Window(QWidget):
         for ind in range(self.metadata[md_name].count()):
             self.metadata[md_name].itemAt(ind).widget().deleteLater()
         self.metadata.pop(md_name)
-        # self.setGeometry(400, 500, self.WIDTH, 800)
 
     def _build_apply_button(self):
         # Make a big ol' button!
         self.apply = QPushButton("APPLY")
         self.apply.setFixedWidth(int(3 * self.WIDTH / 12))
         self.apply.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.apply.clicked.connect(self.download_audio)
+        self.apply.clicked.connect(self.download)
 
         return self.apply
 
     @pyqtSlot()
-    def download_audio(self):
+    def download(self):
         """
-        Puts all the data entered into the proper format for get_audio_segment.
+        Puts all the data entered into the proper format for get_segment.
         """
         vurl = "https://www.youtube.com/watch?v=" + self.youtube_url.text()
 
@@ -314,7 +312,7 @@ class Window(QWidget):
         metadata = {k: v.itemAt(1).widget().text() for k, v in self.metadata.items()}
 
         print(
-            "Grabbing audio from {} at {} for a time of {}.".format(vurl, start, length)
+            "Grabbing media from {} at {} for a time of {}.".format(vurl, start, length)
         )
         print(
             "Saving to {save}/{fname}/{fname}{ftype} with metadata:\n\n{md}".format(
@@ -339,17 +337,17 @@ class Window(QWidget):
         )
         self.thumbnail_display.setPixmap(thumbnail)
 
-        self.get_audio_segment(
-            vurl, self.save_dir.text(), start, length, self.file_name.text(), metadata
+        self.get_segment(
+            vurl=vurl,
+            save=self.save_dir.text(),
+            start=start,
+            length=length,
+            file_name=self.file_name.text(),
+            metadata=metadata,
         )
 
     def _build_thumbnail_display(self):
         self.thumbnail_display = QLabel()
-        # thumbnail = QPixmap()
-        # thumbnail = thumbnail.scaled(2*self.WIDTH/3, 2*self.HEIGHT/3, Qt.KeepAspectRatio)
-
-        # self.thumbnail_display.setPixmap(thumbnail)
-
         return self._format_frame(self.thumbnail_display)
 
     @staticmethod
@@ -382,26 +380,43 @@ class Window(QWidget):
         frame.setMidLineWidth(0)
         return frame
 
-    def get_audio_segment(
-        self, vurl, save, start, length, file_name="", metadata={}, ftype=".mp4"
-    ):
+    def _fancy_title(self, title):
+        fancy_title = QLabel(title)
+        title_font = QFont("Serif", self.TITLE_FONT)
+        title_font.setBold(True)
+        fancy_title.setFont(title_font)
+        fancy_title.setStyleSheet("padding-bottom: 10px;")
+        return fancy_title
+
+    def get_segment(self, vurl, save, start, length, file_name="", metadata={}):
         """
-        Downloads the audio from part of a youtube video.
+        Downloads the media from part of a youtube video.
 
         Parameters:
         vurl - The URL of the video to download
-        save - The directory in which to save the audio
-        start - The time at which the audio to be downloaded starts. Is formatted
+        save - The directory in which to save the media
+        start - The time at which the media to be downloaded starts. Is formatted
                 by HH:MM:SS.mmm
-        length - The length of the audio to record. Is also formatted by
+        length - The length of the media to record. Is also formatted by
                 HH:MM:SS.mmm
-        file_name (default '') - Name of the saved audio file. If nothing is given,
+        file_name (default '') - Name of the saved media file. If nothing is given,
                                 the name of the YouTube video is used
         metadata (default {}) - The metadata to add to the file formatted as
                                 a dictionary
-        ftype (default '.mp4') - The file type to save the audio as
         """
-        # Make directory to save audio and txt info to
+        # -g = --get-url, grabs the URLs of the video/audio files
+        # -e = --get-title gets the title to name the video if no name was given
+        cmd1 = "youtube-dl -eg {vurl}".format(vurl=vurl)
+        print(f"vurl: {vurl}")
+        print(f"cmd1: {cmd1}")
+        data = subprocess.check_output(cmd1).decode("utf-8").split("\n")
+        print("Grabbed meta data for video: {}...\n\n".format(data[0]))
+
+        # Download either audio or video
+        dltype = self.dl_option.currentText()
+        ftype = {"Audio": ".mp4", "Video": ".mp4", "GIF": ".gif"}[dltype]
+
+        # Make directory to save media and txt info to
         fname = file_name if file_name else data[0]
         abs_path = os.path.join(save, fname)
 
@@ -412,23 +427,17 @@ class Window(QWidget):
                     rmtree(abs_path)
                 else:
                     print(
-                        "Directory '{}' already exists and 'Overwrite"
-                        + " Directory' checkbox is not checked.".format(abs_path)
+                        f"Directory '{abs_path}' already exists and 'Overwrite"
+                        + " Directory' checkbox is not checked."
                     )
                     return
             os.makedirs(abs_path)
         except PermissionError:
             print("\nFile is open in another program. Close that then try again.")
 
-        # -g = --get-url, grabs the URLs of the video/audio files
-        # -e = --get-title gets the title to name the video if no name was given
-        cmd1 = "youtube-dl -eg {vurl}".format(vurl=vurl)
-        data = subprocess.check_output(cmd1).decode("utf-8").split("\n")
-        print("Grabbed meta data for video: {}...\n\n".format(data[0]))
-
-        # URL for the audio stream
-        url = data[-2]
-        # Absolute file path that audio will be saved to
+        # URL for the audio/video stream
+        url = data[{"Audio": -2, "Video": -3, "GIF": -3}[dltype]]
+        # Absolute file path that media will be saved to
         save = os.path.join(abs_path, fname + ftype)
 
         # Puts the metadata in the correct format as arguments
@@ -436,10 +445,18 @@ class Window(QWidget):
         if metadata:
             md_arg = "-metadata " + " -metadata ".join(map("=".join, metadata.items()))
 
+        # Makes the GIF have length of 320
+        gif_filter = '-vf "scale=320:-1"' if dltype == "GIF" else ""
+
         # Builds the command to run, shlex.quote keeps the directory from having
         # its slashes all fussed with, i.e. keeps it literal
-        cmd2 = "ffmpeg -ss {start} -i {url} -t {length} {metadata} {save}".format(
-            start=start, url=url, length=length, metadata=md_arg, save=shlex.quote(save)
+        cmd2 = "ffmpeg -ss {start} -i {url} {gif_filter} -t {length} {metadata} {save}".format(
+            start=start,
+            url=url,
+            gif_filter=gif_filter,
+            length=length,
+            metadata=md_arg,
+            save=shlex.quote(save),
         )
         # Split the command appropriately into a list to run via subprocess
         subprocess.run(shlex.split(cmd2))
@@ -466,7 +483,7 @@ class Window(QWidget):
                 f.write(line + "\n")
 
         print("\n\nRunning command:", cmd2)
-        print("\n\nFinished downloading and saved audio to: {}".format(save))
+        print("\n\nFinished downloading and saved media to: {}".format(save))
 
     @staticmethod
     def _get_channel_info(vurl):
