@@ -1,6 +1,8 @@
 # USound Downloader
 You ever wanted to download some audio from YouTube for whatever reason? A funny sound that came from a human's mouth, a funny sound that came from an animal's mouth, words of wisdom, words of absolute absurdity, etc. Well with this program, you just have to give it a few parameters and it'll do the rest. Now it's not the prettiest, but it is quite functional.
 
+**Now can download video clips!!!** This software now brings you the ability to download the video *instead* of the audio as either an MP4 or as a GIF!
+
 ## How to use
 Below is what the GUI looks like:
 
