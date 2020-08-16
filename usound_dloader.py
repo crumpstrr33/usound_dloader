@@ -102,11 +102,26 @@ class Window(QWidget):
         self.dl_option = QComboBox()
         self.dl_option.addItems(self.DL_TYPES)
 
-        dl_option_layout = QVBoxLayout()
-        dl_option_layout.addWidget(title)
-        dl_option_layout.addWidget(self.dl_option)
+        self.gif_length_layout = QHBoxLayout()
+        self.gif_length_option = QLineEdit(text="320")
+        self.gif_length_layout.addWidget(QLabel("GIF Length:"))
+        self.gif_length_layout.addWidget(self.gif_length_option)
 
-        return self._format_frame(dl_option_layout)
+        self.dl_option_layout = QVBoxLayout()
+        self.dl_option_layout.addWidget(title)
+        self.dl_option_layout.addWidget(self.dl_option)
+
+        self.dl_option.currentIndexChanged.connect(self.add_remove_gif_size)
+
+        return self._format_frame(self.dl_option_layout)
+
+    @pyqtSlot()
+    def add_remove_gif_size(self):
+        if self.dl_option.currentText() == "GIF":
+            self.dl_option_layout.addLayout(self.gif_length_layout)
+        else:
+            self.gif_length_layout.setParent(None)
+            self.gif_length_option.setParent(None)
 
     def _build_input_box(self):
         title = self._fancy_title("Inputs")
@@ -333,7 +348,7 @@ class Window(QWidget):
         # Display the thumbnail
         thumbnail = QPixmap(tn_path)
         thumbnail = thumbnail.scaled(
-            2 * self.WIDTH / 3, 2 * self.HEIGHT / 3, Qt.KeepAspectRatio
+            int(2 * self.WIDTH / 3), int(2 * self.HEIGHT / 3), Qt.KeepAspectRatio
         )
         self.thumbnail_display.setPixmap(thumbnail)
 
@@ -445,8 +460,10 @@ class Window(QWidget):
         if metadata:
             md_arg = "-metadata " + " -metadata ".join(map("=".join, metadata.items()))
 
-        # Makes the GIF have length of 320
-        gif_filter = '-vf "scale=320:-1"' if dltype == "GIF" else ""
+        # Makes the GIF have length of whatever is chosen in the option
+        gif_filter = (
+            f'-vf "scale={self.gif_length_option.text()}:-1"' if dltype == "GIF" else ""
+        )
 
         # Builds the command to run, shlex.quote keeps the directory from having
         # its slashes all fussed with, i.e. keeps it literal
