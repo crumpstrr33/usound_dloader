@@ -10,6 +10,7 @@ Below is what the GUI looks like:
   <img width=400 src="https://github.com/crumpstrr33/usound_dloader/blob/master/pics/gui.png">
 </p>
 
+* **Download Option**: Can choose between audio (which is saved an an MP4), video (also saved as a MP4) or a GIF. If choosing a GIF, the option for the size of the GIF appears right underneath for the length of video in pixels.
 * **Start Time**: The time in the video at which to start the audio file. Works down to the millisecond and anything left blank will be interpreted as a 0, e.g. starting at 5 minutes and 3.7 seconds is `5:3.7` which is interpreted as `00:05:03.700`.
 * **Total Time**: The total length of the audio file. Formating rules are idential to **start time**.
 * **Link**: The unique identifier part of a YouTube video URL, usually a string of random alphanumeric characters.
