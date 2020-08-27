@@ -102,10 +102,10 @@ class Window(QWidget):
         self.dl_option = QComboBox()
         self.dl_option.addItems(self.DL_TYPES)
 
-        self.gif_length_layout = QHBoxLayout()
         self.gif_length_option = QLineEdit(text="320")
-        self.gif_length_layout.addWidget(QLabel("GIF Length:"))
-        self.gif_length_layout.addWidget(self.gif_length_option)
+        self.gif_length_layout = self._make_h_layout(
+            [QLabel("GIF Length:"), self.gif_length_option]
+        )
 
         self.dl_option_layout = QVBoxLayout()
         self.dl_option_layout.addWidget(title)
@@ -117,6 +117,10 @@ class Window(QWidget):
 
     @pyqtSlot()
     def add_remove_gif_size(self):
+        """
+        Used by _build_dl_option. Removes GIF size option when LineEdit is not
+        on GIF.
+        """
         if self.dl_option.currentText() == "GIF":
             self.dl_option_layout.addLayout(self.gif_length_layout)
         else:
@@ -193,9 +197,7 @@ class Window(QWidget):
         overwrite_font = QFont("Ariel", 8)
         overwrite_label = QLabel("Overwrite Directory")
         overwrite_label.setFont(overwrite_font)
-        overwrite_layout = QHBoxLayout()
-        overwrite_layout.addWidget(overwrite_label)
-        overwrite_layout.addWidget(self.overwrite)
+        overwrite_layout = self._make_h_layout([overwrite_label, self.overwrite])
 
         # LineEdit to input path to save directory or browse for it
         self.save_dir = QLineEdit()
@@ -227,9 +229,7 @@ class Window(QWidget):
         # Necessary info, name of the file itself
         self.file_name = QLineEdit()
         self.file_name.setStyleSheet(self.INPUT_COLOR)
-        file_name_layout = QHBoxLayout()
-        file_name_layout.addWidget(QLabel("File Name:"))
-        file_name_layout.addWidget(self.file_name)
+        file_name_layout = self._make_h_layout([QLabel("File Name:"), self.file_name])
 
         # Can choose from the list of self.METADATA of different types of
         # metadata to add to the MP3
@@ -238,15 +238,15 @@ class Window(QWidget):
         self.metadata_choices.currentIndexChanged.connect(
             lambda: self.add_metadata(self.metadata_choices.currentText())
         )
-        meta_data_choices_layout = QHBoxLayout()
-        meta_data_choices_layout.addWidget(QLabel("Metadata:"))
-        meta_data_choices_layout.addWidget(self.metadata_choices)
+        metadata_choices_layout = self._make_h_layout(
+            [QLabel("Metadata:"), self.metadata_choices]
+        )
 
         # Stack it all vertically
         self.save_v_layout = QVBoxLayout()
         self.save_v_layout.addWidget(title)
         self.save_v_layout.addLayout(file_name_layout)
-        self.save_v_layout.addLayout(meta_data_choices_layout)
+        self.save_v_layout.addLayout(metadata_choices_layout)
 
         return self._format_frame(self.save_v_layout)
 
@@ -396,6 +396,9 @@ class Window(QWidget):
         return frame
 
     def _fancy_title(self, title):
+        """
+        Styles the title of each section of the GUI
+        """
         fancy_title = QLabel(title)
         title_font = QFont("Serif", self.TITLE_FONT)
         title_font.setBold(True)
@@ -495,6 +498,8 @@ class Window(QWidget):
             "Command1": cmd1,
             "Command2": cmd2,
         }
+        # TODO: Crashes when tries to delete folder but media is opened in
+        # another program.
         with open(os.path.join(abs_path, fname + ".txt"), "w") as f:
             for line in map(": ".join, txt_info.items()):
                 f.write(line + "\n")
@@ -504,6 +509,9 @@ class Window(QWidget):
 
     @staticmethod
     def _get_channel_info(vurl):
+        """
+        Grabs the channel and video name. Used as input info for txt file.
+        """
         try:
             # Returns the name of the channel and title of the video for the URL `vurl`
             soup = BeautifulSoup(requests.get(vurl).content, "html.parser")
