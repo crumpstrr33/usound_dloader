@@ -14,38 +14,35 @@ Things that are important:
    length). It's messy and overly pythonic. I leave it commented out because
    it's messy but I keep it cause it's so pythonic.
 """
-import subprocess
 import os
-import sys
-from itertools import chain
-import urllib.request
 import shlex
+import subprocess
+import sys
 import tempfile
+import urllib.request
+from itertools import chain
 from shutil import rmtree
 
-from bs4 import BeautifulSoup
 import requests
-
+from bs4 import BeautifulSoup
+from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtGui import QFont, QPainter, QPalette, QPixmap
 from PyQt5.QtWidgets import (
     QApplication,
-    QWidget,
-    QHBoxLayout,
-    QVBoxLayout,
-    QGridLayout,
-    QLineEdit,
-    QLabel,
-    QFrame,
-    QPushButton,
-    QFileDialog,
-    QComboBox,
-    QSizePolicy,
-    QWidget,
-    QLayout,
     QCheckBox,
+    QComboBox,
+    QFileDialog,
+    QFrame,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QLayout,
+    QLineEdit,
+    QPushButton,
+    QSizePolicy,
+    QVBoxLayout,
+    QWidget,
 )
-from PyQt5.QtCore import Qt, pyqtSlot
-from PyQt5.QtGui import QFont, QPalette, QPixmap, QPainter
-
 
 # def _time_diff(start, end):
 #     """
@@ -406,6 +403,14 @@ class Window(QWidget):
         fancy_title.setStyleSheet("padding-bottom: 10px;")
         return fancy_title
 
+    @staticmethod
+    def _proper_decode(cmd):
+        # [opening quote, closing quote]
+        replacements = [(b"\x93", '"'), (b"\x94", '"')]
+        for replacement in replacements:
+            cmd = cmd.replace(replacement[0], bytes(replacement[1], encoding="utf-8"))
+        return cmd
+
     def get_segment(self, vurl, save, start, length, file_name="", metadata={}):
         """
         Downloads the media from part of a youtube video.
@@ -427,7 +432,11 @@ class Window(QWidget):
         cmd1 = "youtube-dl -eg {vurl}".format(vurl=vurl)
         print(f"vurl: {vurl}")
         print(f"cmd1: {cmd1}")
-        data = subprocess.check_output(cmd1).decode("utf-8").split("\n")
+        data = (
+            self._proper_decode(subprocess.check_output(cmd1))
+            .decode("utf-8")
+            .split("\n")
+        )
         print("Grabbed meta data for video: {}...\n\n".format(data[0]))
 
         # Download either audio or video
